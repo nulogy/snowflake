@@ -20,104 +20,86 @@ type SnowflakeAppState = {
 }
 
 const hashToState = (hash: String): ?SnowflakeAppState => {
-  if (!hash) return null
-  const result = defaultState()
-  const hashValues = hash.split('#')[1].split(',')
-  if (!hashValues) return null
+  if (!hash) return null;
+  const result = defaultState();
+  const hashValues = hash.split('#')[1].split(',');
+  if (!hashValues) return null;
   trackIds.forEach((trackId, i) => {
     result.milestoneByTrack[trackId] = coerceMilestone(Number(hashValues[i]))
-  })
-  if (hashValues[16]) result.name = decodeURI(hashValues[16])
-  if (hashValues[17]) result.title = decodeURI(hashValues[17])
+  });
+  if (hashValues[16]) result.name = decodeURI(hashValues[16]);
+  if (hashValues[17]) result.title = decodeURI(hashValues[17]);
   return result
-}
+};
 
 const coerceMilestone = (value: number): Milestone => {
   // HACK I know this is goofy but i'm dealing with flow typing
   switch(value) {
-    case 0: return 0
-    case 1: return 1
-    case 2: return 2
-    case 3: return 3
-    case 4: return 4
-    case 5: return 5
-    default: return 0
+    case 0: return 0;
+    case 1: return 1;
+    case 2: return 2;
+    case 3: return 3;
+    case 4: return 4;
+    case 5: return 5;
+    default: return 0;
   }
-}
+};
 
 const emptyState = (): SnowflakeAppState => {
   return {
     name: '',
     title: '',
     milestoneByTrack: {
-      'MOBILE': 0,
-      'WEB_CLIENT': 0,
-      'FOUNDATIONS': 0,
-      'SERVERS': 0,
-      'PROJECT_MANAGEMENT': 0,
-      'COMMUNICATION': 0,
-      'CRAFT': 0,
-      'INITIATIVE': 0,
-      'CAREER_DEVELOPMENT': 0,
-      'ORG_DESIGN': 0,
-      'WELLBEING': 0,
-      'ACCOMPLISHMENT': 0,
-      'MENTORSHIP': 0,
-      'EVANGELISM': 0,
-      'RECRUITING': 0,
-      'COMMUNITY': 0
+      'PRODUCT_DELIVERY': 0,
+      'ACCOUNTABILITY': 0,
+      'CONTINUOUS_IMPROVEMENT': 0,
+      'TEAMWORK': 0,
+      'BUSINESS_THINKING': 0,
+      'ANALYSIS_&_DESIGN': 0,
+      'LEADERSHIP': 0,
     },
-    focusedTrackId: 'MOBILE'
+    focusedTrackId: 'PRODUCT_DELIVERY'
   }
-}
+};
 
 const defaultState = (): SnowflakeAppState => {
   return {
-    name: 'Cersei Lannister',
+    name: 'Jean-Luc Picard',
     title: 'Staff Engineer',
     milestoneByTrack: {
-      'MOBILE': 1,
-      'WEB_CLIENT': 2,
-      'FOUNDATIONS': 3,
-      'SERVERS': 2,
-      'PROJECT_MANAGEMENT': 4,
-      'COMMUNICATION': 1,
-      'CRAFT': 1,
-      'INITIATIVE': 4,
-      'CAREER_DEVELOPMENT': 3,
-      'ORG_DESIGN': 2,
-      'WELLBEING': 0,
-      'ACCOMPLISHMENT': 4,
-      'MENTORSHIP': 2,
-      'EVANGELISM': 2,
-      'RECRUITING': 3,
-      'COMMUNITY': 0
+      'PRODUCT_DELIVERY': 1,
+      'ACCOUNTABILITY': 2,
+      'CONTINUOUS_IMPROVEMENT': 3,
+      'TEAMWORK': 2,
+      'BUSINESS_THINKING': 4,
+      'ANALYSIS_&_DESIGN': 1,
+      'LEADERSHIP': 1,
     },
-    focusedTrackId: 'MOBILE'
+    focusedTrackId: 'PRODUCT_DELIVERY'
   }
-}
+};
 
 const stateToHash = (state: SnowflakeAppState) => {
   if (!state || !state.milestoneByTrack) return null
   const values = trackIds.map(trackId => state.milestoneByTrack[trackId]).concat(encodeURI(state.name), encodeURI(state.title))
   return values.join(',')
-}
+};
 
 type Props = {}
 
 class SnowflakeApp extends React.Component<Props, SnowflakeAppState> {
   constructor(props: Props) {
-    super(props)
+    super(props);
     this.state = emptyState()
   }
 
   componentDidUpdate() {
-    const hash = stateToHash(this.state)
+    const hash = stateToHash(this.state);
     if (hash) window.location.replace(`#${hash}`)
   }
 
   componentDidMount() {
-    const state = hashToState(window.location.hash)
+    const state = hashToState(window.location.hash);
     if (state) {
       this.setState(state)
     } else {
@@ -156,8 +138,8 @@ class SnowflakeApp extends React.Component<Props, SnowflakeAppState> {
           }
         `}</style>
         <div style={{margin: '19px auto 0', width: 142}}>
-          <a href="https://medium.com/" target="_blank">
-            <Wordmark />
+          <a href="https://nulogy.com/" target="_blank">
+            <img src="https://nulogy.com/wp-content/uploads/2017/09/NavBar-AltLogo.png" alt="Nulogy" />
           </a>
         </div>
         <div style={{display: 'flex'}}>
@@ -211,40 +193,40 @@ class SnowflakeApp extends React.Component<Props, SnowflakeAppState> {
   }
 
   handleTrackMilestoneChange(trackId: TrackId, milestone: Milestone) {
-    const milestoneByTrack = this.state.milestoneByTrack
-    milestoneByTrack[trackId] = milestone
+    const milestoneByTrack = this.state.milestoneByTrack;
+    milestoneByTrack[trackId] = milestone;
 
-    const titles = eligibleTitles(milestoneByTrack)
-    const title = titles.indexOf(this.state.title) === -1 ? titles[0] : this.state.title
+    const titles = eligibleTitles(milestoneByTrack);
+    const title = titles.indexOf(this.state.title) === -1 ? titles[0] : this.state.title;
 
     this.setState({ milestoneByTrack, focusedTrackId: trackId, title })
   }
 
   shiftFocusedTrack(delta: number) {
-    let index = trackIds.indexOf(this.state.focusedTrackId)
-    index = (index + delta + trackIds.length) % trackIds.length
-    const focusedTrackId = trackIds[index]
+    let index = trackIds.indexOf(this.state.focusedTrackId);
+    index = (index + delta + trackIds.length) % trackIds.length;
+    const focusedTrackId = trackIds[index];
     this.setState({ focusedTrackId })
   }
 
   setFocusedTrackId(trackId: TrackId) {
-    let index = trackIds.indexOf(trackId)
-    const focusedTrackId = trackIds[index]
+    let index = trackIds.indexOf(trackId);
+    const focusedTrackId = trackIds[index];
     this.setState({ focusedTrackId })
   }
 
   shiftFocusedTrackMilestoneByDelta(delta: number) {
-    let prevMilestone = this.state.milestoneByTrack[this.state.focusedTrackId]
-    let milestone = prevMilestone + delta
-    if (milestone < 0) milestone = 0
-    if (milestone > 5) milestone = 5
-    this.handleTrackMilestoneChange(this.state.focusedTrackId, milestone)
+    let prevMilestone = this.state.milestoneByTrack[this.state.focusedTrackId];
+    let milestone = prevMilestone + delta;
+    if (milestone < 0) milestone = 0;
+    if (milestone > 5) milestone = 5;
+    this.handleTrackMilestoneChange(this.state.focusedTrackId, milestone);
   }
 
   setTitle(title: string) {
-    let titles = eligibleTitles(this.state.milestoneByTrack)
-    title = titles.indexOf(title) == -1 ? titles[0] : title
-    this.setState({ title })
+    let titles = eligibleTitles(this.state.milestoneByTrack);
+    title = titles.indexOf(title) == -1 ? titles[0] : title;
+    this.setState({ title });
   }
 }
 
